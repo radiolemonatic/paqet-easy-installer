@@ -37,4 +37,4 @@
 کافی است دستور زیر را روی سرور اجرا کنید:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/radiolemonatic/paqet-easy-installer/main/install_paqet_server.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/radiolemonatic/paqet-easy-installer/main/install.sh)
