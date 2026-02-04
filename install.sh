@@ -30,12 +30,18 @@ fi
 
 if [[ -f /opt/paqet ]]; then
     header "PAQET ALREADY INSTALLED"
-    
+
+    # network interface
     INTERFACE=$(ip route show default | awk 'NR==1 {print $5}')
+    # server IP
     SERVER_IP=$(ip -4 addr show "$INTERFACE" | awk '/inet / {print $2}' | cut -d/ -f1 | head -n1)
-    SERVER_PORT=$(grep 'listen:' /opt/config.yaml 2>/dev/null | awk -F':' '{print $2}' | tr -d '"')
+    # server port from config, fallback to 443
+    SERVER_PORT=$(grep 'listen:' /opt/config.yaml 2>/dev/null | awk -F':' '{gsub(/ /,"",$2); print $2}')
     [[ -z "$SERVER_PORT" ]] && SERVER_PORT="443"
+    # gateway IP
     GATEWAY_IP=$(ip route show default | awk 'NR==1 {print $3}')
+    # ensure ARP entry exists
+    ping -c1 "$GATEWAY_IP" >/dev/null 2>&1
     GATEWAY_MAC=$(ip neigh show "$GATEWAY_IP" | awk '{print $5}')
 
     info "Network Interface : $INTERFACE"
@@ -47,7 +53,7 @@ if [[ -f /opt/paqet ]]; then
     systemctl --no-pager status paqet || true
 
     warn "Paqet is already installed. Exiting script safely."
-    return 0 2>/dev/null || exit 0
+    exit 0
 fi
 
 ###############################################################################
