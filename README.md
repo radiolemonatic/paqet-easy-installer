@@ -38,3 +38,12 @@
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/radiolemonatic/paqet-easy-installer/main/install.sh)
+```
+
+## ⚡ حذف سریع (One-Line Command)
+
+کافی است دستور زیر را روی سرور اجرا کنید:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/radiolemonatic/paqet-easy-installer/main/uninstall.sh)
+```
