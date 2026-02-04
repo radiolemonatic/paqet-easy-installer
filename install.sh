@@ -71,24 +71,36 @@ ARCH="amd64"
 
 API_URL="https://api.github.com/repos/hanselime/paqet/releases/latest"
 
+# Fetch latest release download URL
 ASSET_URL=$(curl -s "$API_URL" \
   | grep browser_download_url \
-  | grep "$OS-$ARCH" \
+  | grep "${OS}-${ARCH}" \
   | cut -d '"' -f 4)
 
-[[ -z "$ASSET_URL" ]] && error "No matching release asset found"
+if [[ -z "$ASSET_URL" ]]; then
+    warn "No matching release asset found for ${OS}-${ARCH}"
+    return 0 2>/dev/null || exit 0
+fi
 
 info "Release asset     : $ASSET_URL"
 
+# Download and extract
 TMP_DIR=$(mktemp -d)
-cd "$TMP_DIR"
+cd "$TMP_DIR" || { warn "Failed to cd into temp dir"; return 0; }
 
 curl -L -o paqet.tar.gz "$ASSET_URL"
+
+# Extract the archive safely
 tar -xzf paqet.tar.gz
 
-BIN_FILE=$(ls | grep paqet | head -n1)
-[[ -z "$BIN_FILE" ]] && error "Paqet binary not found in archive"
+# Find binary exact match *_linux_amd64
+BIN_FILE=$(ls | grep "_${OS}_${ARCH}$" | head -n1)
+if [[ -z "$BIN_FILE" ]]; then
+    warn "Paqet binary not found in archive"
+    return 0 2>/dev/null || exit 0
+fi
 
+# Move to /opt and rename to paqet
 mkdir -p /opt
 mv "$BIN_FILE" /opt/paqet
 chmod +x /opt/paqet
